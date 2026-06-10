@@ -12,6 +12,25 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.0] - 2026-06-10
+
+Fusion des plugins `pymodaq_plugins_raspberrypi3` et `pymodaq_plugins_raspberrypizero` —
+**Sprint 4 : finitions et documentation** (première version « production » du plugin fusionné).
+
+### Ajouté
+- Documentation du plugin fusionné dans `README.rst` : liste des instruments
+  (`MoveRasp`, `ViewRasp`, `picamera`) et description du serveur Raspberry
+  (`src_raspberry/`).
+
+### Modifié
+- `README.rst` : mise à jour des auteurs, de la version PyMoDAQ requise (>= 5) et
+  des cartes testées (Raspberry Pi 3 et Pi Zero).
+
+### Vérifié
+- Conformité à `tests/test_plugin_package_structure.py` (conventions de nommage et
+  méthodes obligatoires des plugins `DAQ_Move_MoveRasp` et `DAQ_0DViewer_ViewRasp`) ;
+  aucune modification du test n'a été nécessaire.
+
 ## [5.3.0] - 2026-06-10
 
 Fusion des plugins `pymodaq_plugins_raspberrypi3` et `pymodaq_plugins_raspberrypizero` —
