@@ -6,6 +6,11 @@
 Chaque Raspberry possède son propre banc de test : ce fichier est l'unique endroit
 à adapter pour décrire le matériel présent. Les couches transport / gestion des
 requêtes / communication composants ne changent pas d'un banc à l'autre.
+
+Ce fichier décrit le banc par défaut (actionneurs pilotés en PWM). Des exemples de
+configurations pour d'autres bancs sont fournis dans le dossier `config_examples/`
+(ex. `config_pizero.py` pour un banc tout-ou-rien avec sonde PT100) : il suffit de
+copier le contenu voulu ici.
 """
 #region Constantes I2C
 ## @brief ID du bus I2C matériel
@@ -38,6 +43,7 @@ ACTUATORS_CONFIG = [
         'pin':           VENTILATEUR_PIN,
         'title':         'Ventilateur',
         'name':          'ventilateur',
+        'driver':        'PWM',          # mode de pilotage : 'PWM' ou 'DIGITAL'
         'units':         '%',
         'min':           0,
         'max':           255,
@@ -48,6 +54,7 @@ ACTUATORS_CONFIG = [
         'pin':           RESISTANCE_PIN,
         'title':         'Resistance',
         'name':          'resistance',
+        'driver':        'PWM',
         'units':         '%',
         'min':           0,
         'max':           255,

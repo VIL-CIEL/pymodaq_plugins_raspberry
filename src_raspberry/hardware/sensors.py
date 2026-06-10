@@ -137,6 +137,56 @@ class CDriverSimule(CSensorDriver):
         if channel == 'hum':
             return round(random.uniform(40.0, 60.0), 2)
         return round(random.uniform(20.0, 25.0), 2)
+
+class CDriverPt100(CSensorDriver):
+    """!
+    @brief Pilote pour une sonde de température PT100 lue via un CAN ADS1115.
+
+    La PT100 ne communique pas directement sur le bus I2C du serveur : elle est
+    lue au travers d'un convertisseur analogique-numérique ADS1115 (librairie
+    Adafruit_ADS1x15). L'argument `bus` n'est donc pas utilisé, mais conservé
+    pour respecter l'interface commune des pilotes de capteurs.
+    """
+
+    def __init__(self, bus, addr: int):
+        super().__init__(bus, addr)
+        # Import local pour isoler la dépendance optionnelle Adafruit_ADS1x15 :
+        # le module sensors reste importable même si la librairie est absente.
+        try:
+            import Adafruit_ADS1x15
+            self._adc = Adafruit_ADS1x15.ADS1115()
+            ## @brief Gain de l'amplificateur du CAN
+            self.GAIN = 1
+            ## @brief Tension d'alimentation du pont (V)
+            self.TENSION_VA = 3.29
+            ## @brief Valeur brute maximale du CAN
+            self.MAXI = 26300.0
+            ## @brief Résistance de pont (Ohm)
+            self.RP = 97.7
+            ## @brief Résistance nominale de la PT100 à 0 °C (Ohm)
+            self.R0 = 100.0
+            ## @brief Coefficient de température de la platine
+            self.ALPHA = 0.00385
+        except Exception as exc:
+            logger.error("Erreur d'initialisation de l'ADS1115 (PT100) : %s", exc)
+
+    def ReadValue(self, **_) -> float:
+        """!
+        @brief Lit la température via le CAN et la loi de la platine.
+        @return Température en degrés Celsius (0.0 en cas d'échec).
+        """
+        try:
+            rawValue = self._adc.read_adc(0, gain=self.GAIN)            # canal A0
+            tensionPT100 = (rawValue / self.MAXI) * self.TENSION_VA
+            denominateur = self.TENSION_VA - tensionPT100
+            if abs(denominateur) < 0.001:
+                return 0.0
+            Rpt100 = (tensionPT100 * self.RP) / denominateur            # résistance du pont
+            temperature = (Rpt100 - self.R0) / (self.R0 * self.ALPHA)   # loi de la platine
+            return round(temperature, 2)
+        except Exception as exc:
+            logger.warning("Échec de lecture PT100 : %s", exc)
+            return 0.0
 #endregion
 
 #region Registre
@@ -147,6 +197,7 @@ SENSOR_DRIVER_REGISTRY: dict = {
     'AHT10':   CDriverAht10,
     'TMP102':  CDriverTmp102,
     'EMC2101': CDriverEmc2101,
+    'PT-100':  CDriverPt100,
     'SIMULE':  CDriverSimule,
 }
 #endregion

@@ -32,12 +32,29 @@ interchangeable** derrière une interface, sauf le `main` qui les assemble :
 - **`hardware/`** — communication avec les composants.
   - `base.py` : interface `IHardwareBackend`.
   - `backend.py` : implémentation `HardwareBackend` (capteurs + actionneurs).
-  - `sensors.py` : pilotes de capteurs et `SENSOR_DRIVER_REGISTRY`.
-  - `actuators.py` : gestionnaire d'actionneurs.
+  - `sensors.py` : pilotes de capteurs et `SENSOR_DRIVER_REGISTRY`
+    (`AHT10`, `TMP102`, `EMC2101`, `PT-100`, `SIMULE`).
+  - `actuators.py` : pilotes d'actionneurs et `ACTUATOR_DRIVER_REGISTRY`
+    (`PWM`, `DIGITAL`), plus le gestionnaire `CActuatorManager`.
   - `scanner.py` : détection des adresses I2C.
 - **`config.py`** — description du banc de test (broches, capteurs, actionneurs).
   C'est le **seul fichier à adapter** d'un banc à l'autre.
+- **`config_examples/`** — configurations prêtes à l'emploi pour d'autres bancs
+  (ex. `config_pizero.py` : actionneurs tout-ou-rien + sonde PT100).
 - **`main.py`** — point d'entrée : instancie et câble les trois couches.
+
+### Adapter le serveur à un banc
+
+Toute la différence entre deux bancs (Raspberry Pi 3, Pi Zero, …) tient dans
+`config.py` : un capteur choisit son pilote via le champ `driver` (clé de
+`SENSOR_DRIVER_REGISTRY`), un actionneur via son propre champ `driver`
+(`PWM` ou `DIGITAL`, clé de `ACTUATOR_DRIVER_REGISTRY`). Ajouter un nouveau
+matériel = créer une classe de pilote et l'enregistrer dans le registre
+correspondant ; ni le transport, ni la gestion des requêtes, ni le `main`
+ne changent.
+
+Pour repartir d'un banc existant, copiez le fichier voulu de `config_examples/`
+vers `config.py`.
 
 ## 🛠️ Prérequis et installation
 

@@ -12,6 +12,42 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.2.0] - 2026-06-10
+
+Fusion des plugins `pymodaq_plugins_raspberrypi3` et `pymodaq_plugins_raspberrypizero` —
+**Sprint 2 : fusion des bancs de test (capteurs et actionneurs pilotés par config)**.
+
+### Ajouté
+- Pilote de capteur `PT-100` (sonde de température via CAN ADS1115), enregistré
+  dans `SENSOR_DRIVER_REGISTRY` (import de la dépendance Adafruit isolé localement).
+- Pilotes d'actionneurs **interchangeables** derrière l'interface `CActuatorDriver`,
+  sélectionnés par le champ `driver` de la configuration, et enregistrés dans
+  `ACTUATOR_DRIVER_REGISTRY` :
+  - `PWM` — pilotage en rapport cyclique (ex-banc Raspberry Pi 3) ;
+  - `DIGITAL` — pilotage tout-ou-rien (ex-banc Raspberry Pi Zero).
+- `config_examples/config_pizero.py` : configuration d'exemple d'un banc tout-ou-rien
+  avec sonde PT100.
+
+### Modifié
+- `CActuatorManager` instancie désormais le pilote adapté à chaque actionneur
+  (au lieu d'un pilotage PWM codé en dur), permettant de mélanger des modes de
+  pilotage différents sur un même banc.
+- `CActuatorConfig` accepte un champ `driver` (défaut `PWM`) ; `pwm_frequency`
+  devient optionnel (inutile pour les actionneurs tout-ou-rien).
+- `config.py` documente le choix du pilote par actionneur.
+
+### Supprimé
+- Le moniteur de sécurité (`safety_monitor.py`) des plugins d'origine n'est pas
+  repris : il lisait des constantes de configuration inexistantes et n'était
+  jamais démarré par le `main`.
+
+### Corrigé
+- La fonction morte `build_sensor_map` (références non importées dans l'ancien
+  `connexion.py`) n'est pas reprise ; la construction de la cartographie des
+  capteurs est unifiée dans `HardwareBackend`.
+- L'indentation cassée et la perte de `pwm_frequency` de l'ancien `actuators.py`
+  côté Pi Zero sont résolues par le nouveau modèle de pilotes d'actionneurs.
+
 ## [5.1.0] - 2026-06-10
 
 Fusion des plugins `pymodaq_plugins_raspberrypi3` et `pymodaq_plugins_raspberrypizero`
