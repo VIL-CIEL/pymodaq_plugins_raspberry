@@ -12,6 +12,29 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.3.0] - 2026-06-10
+
+Fusion des plugins `pymodaq_plugins_raspberrypi3` et `pymodaq_plugins_raspberrypizero` —
+**Sprint 3 : intégration du client PyMoDAQ**.
+
+### Ajouté
+- `hardware/Link_PMQ.py` : client `ZMQLink` (lien ZeroMQ DEALER vers le serveur Raspberry).
+- `hardware/Config_Components.py` : lecture des composants (actionneurs/détecteurs)
+  depuis le fichier de configuration TOML.
+- `daq_move_plugins/daq_move_MoveRasp.py` : plugin actionneur `DAQ_Move_MoveRasp`.
+- `daq_viewer_plugins/plugins_0D/daq_0Dviewer_ViewRasp.py` : plugin détecteur
+  `DAQ_0DViewer_ViewRasp`.
+
+### Modifié
+- `resources/config_template.toml` : section de configuration unifiée `[Raspberry]`
+  (remplace les sections spécifiques `[RaspPi3]` / `[RaspPiZero]` des plugins d'origine).
+- `pyproject.toml` : ajout de la dépendance `pyzmq` (requise par `ZMQLink`).
+- Le plugin `DAQ_2DViewer_PiCamera` existant n'est pas modifié.
+
+### Corrigé
+- Remplacement des f-strings à guillemets imbriqués identiques (`f"{d["k"]}"`),
+  valides seulement en Python 3.12+, par une forme compatible Python 3.8+.
+
 ## [5.2.0] - 2026-06-10
 
 Fusion des plugins `pymodaq_plugins_raspberrypi3` et `pymodaq_plugins_raspberrypizero` —

@@ -14,6 +14,7 @@ description = 'Set of instrument plugins to use with a raspberry'
 dependencies = [
     "pymodaq>=5.0.0",
     'picamera2',
+    'pyzmq',
 ]
 
 authors = [
