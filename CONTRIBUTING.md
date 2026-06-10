@@ -24,8 +24,8 @@ La version courante est portée par [`version.json`](version.json) à la racine 
 - `hotfix/nom-court` : correctifs urgents
 
 ### Tags
-- Tag Git obligatoire à chaque déploiement en production, préfixé par `v`
-  (ex. `v5.1.0`), aligné sur `version.json`.
+- Tag Git obligatoire à chaque déploiement en production (ex. `5.1.0`),
+  aligné sur `version.json` et sur la convention de l'historique (sans préfixe `v`).
 
 ## Découpage du travail de fusion (sprints)
 

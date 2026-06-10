@@ -12,6 +12,13 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.1] - 2026-06-10
+
+### Corrigé
+- `CONTRIBUTING.md` : convention de tags alignée sur l'historique du dépôt
+  (`5.0.0`, `5.0.1`) — les tags de production sont au format `MAJEUR.MINEUR.CORRECTIF`
+  sans préfixe `v`.
+
 ## [5.4.0] - 2026-06-10
 
 Fusion des plugins `pymodaq_plugins_raspberrypi3` et `pymodaq_plugins_raspberrypizero` —
