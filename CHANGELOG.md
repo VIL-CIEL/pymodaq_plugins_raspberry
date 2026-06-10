@@ -12,6 +12,14 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.2] - 2026-06-10
+
+### Modifié
+- `README.rst` réécrit du point de vue de l'utilisateur du plugin (contrôle d'un
+  dispositif expérimental via un Raspberry). Mise en avant des trois axes
+  d'adaptabilité : communication PyMoDAQ ⇄ Raspberry, communication
+  Raspberry ⇄ composants, et ajout de nouvelles requêtes JSON des deux côtés.
+
 ## [5.4.1] - 2026-06-10
 
 ### Corrigé

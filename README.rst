@@ -19,19 +19,20 @@ Raspberry plugin
     :target: https://github.com/PyMoDAQ/pymodaq_plugins_raspberry/actions/workflows/Test.yml
 
 
-Set of instrument plugins to be used from or on your Raspberry Pi.
+PyMoDAQ plugin to control an experimental device (or test bench) through a
+Raspberry Pi.
 
-This package merges the former ``pymodaq_plugins_raspberrypi3`` and
-``pymodaq_plugins_raspberrypizero`` plugins into a single one. The differences
-between boards (Raspberry Pi 3, Pi Zero, ...) are entirely described by
-configuration: a sensor selects its driver, an actuator its control mode
-(``PWM`` or ``DIGITAL``), so the same code base works with any test bench.
+A small server runs **on the Raspberry Pi** and drives the components of the
+device (sensors, actuators); PyMoDAQ talks to that server over the network. From
+PyMoDAQ you then get a detector (to read the sensors) and an actuator (to drive
+the outputs) as if they were local instruments.
+
 
 Authors
 =======
 
 * Sebastien J. Weber  (sebastien.weber@cnrs.fr)
-* Fabien Villedieu (merge of the raspberrypi3 / raspberrypizero plugins)
+* Fabien Villedieu
 
 
 Instruments
@@ -42,44 +43,67 @@ Below is the list of instruments included in this plugin
 Actuators
 +++++++++
 
-* **MoveRasp**: control of actuators (PWM or all-or-nothing) wired to a Raspberry,
-  through a ZeroMQ link to the on-board server (see ``src_raspberry/``)
+* **MoveRasp**: drive the outputs of the device (e.g. PWM or all-or-nothing
+  actuators) wired to the Raspberry
 
 Viewer0D
 ++++++++
 
-* **ViewRasp**: acquisition of I2C sensors (AHT10, TMP102, EMC2101, PT100, ...)
-  wired to a Raspberry, through the same ZeroMQ link
+* **ViewRasp**: read the sensors of the device (e.g. I2C sensors) wired to the
+  Raspberry
 
 Viewer2D
 ++++++++
 
 * **picamera**: control of the integrated pi camera using the Picamera2 library
 
-.. if needed use this field
 
-    PID Models
-    ==========
+Adapting the plugin to your setup
+=================================
 
+The plugin is built to be adapted to a wide range of benches. Three things can be
+changed independently:
 
-    Extensions
-    ==========
+* **The PyMoDAQ ⇄ Raspberry communication.** It uses a ZeroMQ link by default,
+  but the transport is isolated behind a dedicated layer: it can be replaced by
+  another communication mean (serial, HTTP, ...) without touching the rest. On the
+  Raspberry side, implement the transport interface (``ITransport``) and wire it in
+  ``main.py``; on the PyMoDAQ side, provide a class exposing the same methods as
+  ``ZMQLink`` (``hardware/Link_PMQ.py``).
+
+* **The Raspberry ⇄ components communication.** Each sensor and each actuator is
+  driven by an interchangeable driver selected from the bench configuration
+  (``src_raspberry/config.py``). Adding a new component is just a matter of writing
+  a small driver class and registering it:
+
+  - a new sensor → a class in ``src_raspberry/hardware/sensors.py`` registered in
+    ``SENSOR_DRIVER_REGISTRY``;
+  - a new actuator control mode → a class in ``src_raspberry/hardware/actuators.py``
+    registered in ``ACTUATOR_DRIVER_REGISTRY`` (``PWM`` and ``DIGITAL`` are provided).
+
+* **The set of JSON requests.** The PyMoDAQ side and the Raspberry side exchange
+  JSON messages, and new request types can be added easily on both ends:
+
+  - **Raspberry side**: add an entry to the routing table ``_requestHandlers`` in
+    ``src_raspberry/handlers/json_handler.py`` with its handler method, which
+    delegates any hardware access to the hardware backend (``IHardwareBackend``);
+  - **PyMoDAQ side**: add a method to ``ZMQLink`` (``hardware/Link_PMQ.py``) that
+    builds and sends the new request, then call it from the move/viewer plugins.
 
 
 Raspberry-side server
 =====================
 
-The ``MoveRasp`` / ``ViewRasp`` plugins talk to a server that must run **on the
-Raspberry Pi**. Its source code lives in the ``src_raspberry/`` folder at the root
-of this repository (it is a companion, non-packaged addition). It is organised in
-interchangeable layers — ZeroMQ transport, JSON request handler, hardware backend —
-each behind an interface, so the transport or the hardware communication can be
-swapped without touching the rest. See ``src_raspberry/README.md`` for installation
-and the JSON protocol.
+The code that must run on the Raspberry Pi lives in the ``src_raspberry/`` folder
+at the root of this repository. It is organised in independent layers — network
+transport, JSON request handling, and hardware communication — each behind an
+interface, which is what makes the points above easy to adapt. See
+``src_raspberry/README.md`` for installation and the JSON protocol.
 
 
 Installation instructions
 =========================
 
 * PyMoDAQ’s version >= 5
-* Tested on/with a Raspberry Pi 3 and a Raspberry Pi Zero
+* The Raspberry-side server requires the I2C bus and the ``pigpio`` daemon
+  (see ``src_raspberry/README.md``).
