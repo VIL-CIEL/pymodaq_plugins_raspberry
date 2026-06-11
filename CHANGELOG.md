@@ -12,6 +12,15 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.3] - 2026-06-10
+
+### Corrigé
+- Installation impossible sur Windows/macOS : la dépendance `picamera2` (qui tire
+  `python-prctl`, Linux-only) est désormais conditionnée à Linux via un marqueur
+  d'environnement (`picamera2; platform_system == "Linux"`). La machine de contrôle
+  peut installer le plugin (actionneur/détecteur distants) ; le viewer PiCamera
+  reste disponible sur le Raspberry.
+
 ## [5.4.2] - 2026-06-10
 
 ### Modifié
