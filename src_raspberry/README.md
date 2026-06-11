@@ -45,7 +45,7 @@ interchangeable** derrière une interface, sauf le `main` qui les assemble :
 
 ### Adapter le serveur à un banc
 
-Toute la différence entre deux bancs (Raspberry Pi 3, Pi Zero, …) tient dans
+Toute la différence entre deux bancs de test tient dans
 `config.py` : un capteur choisit son pilote via le champ `driver` (clé de
 `SENSOR_DRIVER_REGISTRY`), un actionneur via son propre champ `driver`
 (`PWM` ou `DIGITAL`, clé de `ACTUATOR_DRIVER_REGISTRY`). Ajouter un nouveau

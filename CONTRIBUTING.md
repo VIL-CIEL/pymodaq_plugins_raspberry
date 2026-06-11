@@ -26,12 +26,3 @@ La version courante est portée par [`version.json`](version.json) à la racine 
 ### Tags
 - Tag Git obligatoire à chaque déploiement en production (ex. `5.1.0`),
   aligné sur `version.json` et sur la convention de l'historique (sans préfixe `v`).
-
-## Découpage du travail de fusion (sprints)
-
-| Version | Sprint | Contenu |
-|---------|--------|---------|
-| 5.1.0   | Sprint 1 | Infrastructure (versioning) + refonte du serveur en couches interchangeables |
-| 5.2.0   | Sprint 2 | Fusion des bancs Pi 3 / Pi Zero (registres capteurs + actionneurs, pilotage par config) |
-| 5.3.0   | Sprint 3 | Intégration du client PyMoDAQ (Link_PMQ, daq_move, daq_viewer) |
-| 5.4.0   | Sprint 4 | Config template fusionné, tests, documentation |

@@ -55,7 +55,11 @@ Viewer0D
 Viewer2D
 ++++++++
 
-* **picamera**: control of the integrated pi camera using the Picamera2 library
+* **picamera**: control of the integrated pi camera using the Picamera2 library.
+  This viewer relies on ``picamera2``, which is **only available on Linux/Raspberry**
+  (it depends on a Linux-only package). On a Windows/macOS control machine the
+  plugin still installs and works for the remote actuator/detector, but the
+  PiCamera viewer is simply not loaded.
 
 
 Adapting the plugin to your setup
@@ -105,5 +109,8 @@ Installation instructions
 =========================
 
 * PyMoDAQ’s version >= 5
+* On a Windows/macOS control machine the plugin installs as is; the ``picamera2``
+  dependency (Linux-only) is automatically skipped, so only the PiCamera viewer is
+  unavailable there.
 * The Raspberry-side server requires the I2C bus and the ``pigpio`` daemon
   (see ``src_raspberry/README.md``).

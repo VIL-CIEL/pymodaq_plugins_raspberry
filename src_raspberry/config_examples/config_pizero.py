@@ -1,7 +1,7 @@
 """!
 @file config_pizero.py
 @brief Exemple de configuration de banc avec actionneurs tout-ou-rien (TOR) et
-       sonde PT100 (ex-banc Raspberry Pi Zero).
+       sonde PT100.
 
 Pour l'utiliser : copier ce contenu dans `src_raspberry/config.py`.
 Aucun autre fichier n'a besoin d'être modifié — seuls les pilotes sélectionnés

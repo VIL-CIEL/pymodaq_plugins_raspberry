@@ -64,8 +64,8 @@ class CActuatorDriver(ABC):
 
     Chaque mode de pilotage (PWM, tout-ou-rien, ...) est une classe interchangeable
     enregistrée dans ACTUATOR_DRIVER_REGISTRY et sélectionnée par le champ 'driver'
-    de la configuration de l'actionneur. C'est ce qui distingue un banc d'un autre
-    (ex. Raspberry Pi 3 en PWM vs Raspberry Pi Zero en tout-ou-rien).
+    de la configuration de l'actionneur. C'est ce qui permet d'adapter le serveur
+    au type de pilotage utilisé par chaque banc de test.
     """
 
     def __init__(self, piClient, actuatorConfig: CActuatorConfig):
