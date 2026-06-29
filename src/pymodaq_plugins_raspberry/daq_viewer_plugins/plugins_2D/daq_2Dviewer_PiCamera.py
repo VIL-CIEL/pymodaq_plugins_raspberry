@@ -1,9 +1,13 @@
 import numpy as np
+from qtpy import QtWidgets
 
 from pymodaq.utils.daq_utils import ThreadCommand
 from pymodaq.utils.data import DataFromPlugins, Axis, DataToExport
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
 from pymodaq.utils.parameter import Parameter
+from pymodaq_utils.logger import set_logger, get_module_name
+
+logger = set_logger(get_module_name(__file__))
 
 from picamera2 import Picamera2
 
@@ -23,14 +27,15 @@ class DAQ_2DViewer_PiCamera(DAQ_Viewer_base):
              """
 
     hardware_averaging = True
-    live_mode_available = True
+    live_mode_available = False
 
     params = comon_parameters + [
-        {'title': 'Zoom:', 'name': 'zoom', 'type': 'slide', 'value': 1.0, 'min': 0., 'max': 1., 'subtype': 'linear'},
-        {'title': 'Brightness:', 'name': 'brightness', 'type': 'slide', 'value': 50, 'min': 0, 'max': 100,
-         'subtype': 'linear', 'int': True},
-        {'title': 'Contrast:', 'name': 'contrast', 'type': 'slide', 'value': 0, 'min': -100, 'max': 100,
-         'subtype': 'linear', 'int': True},
+        {'title': 'Resolution:', 'name': 'resolution', 'type': 'list', 'value': 'low', 'limits': ['low', 'high']},
+        #{'title': 'Zoom:', 'name': 'zoom', 'type': 'slide', 'value': 1.0, 'min': 0., 'max': 1., 'subtype': 'linear'},
+        #{'title': 'Brightness:', 'name': 'brightness', 'type': 'slide', 'value': 50, 'min': 0, 'max': 100,
+        # 'subtype': 'linear', 'int': True},
+        #{'title': 'Contrast:', 'name': 'contrast', 'type': 'slide', 'value': 0, 'min': -100, 'max': 100,
+        # 'subtype': 'linear', 'int': True},
     ]
 
     def ini_attributes(self):
@@ -55,8 +60,11 @@ class DAQ_2DViewer_PiCamera(DAQ_Viewer_base):
             A given parameter (within detector_settings) whose value has been changed by the user
         """
         # TODO for your custom plugin
-        if param.name() == "a_parameter_you've_added_in_self.params":
-            self.controller.your_method_to_apply_this_param_change()
+        if param.name() == "resolution":
+            if param.value() == 'low':
+                self.controller.switch_mode(self.low_res_config)
+            else:
+                self.controller.switch_mode(self.high_res_config)
         #elif ...
 
     def ini_detector(self, controller=None):
@@ -74,29 +82,21 @@ class DAQ_2DViewer_PiCamera(DAQ_Viewer_base):
         initialized: bool
             False if initialization failed otherwise True
         """
-        self.ini_detector_init(old_controller=controller,
-                               new_controller=PiCamera2())
+        if self.is_master:
+            self.controller = Picamera2()
+        else:
+            self.controller = controller
+        
+        self.low_res_config = self.controller.create_preview_configuration()
+        self.high_res_config = self.controller.create_still_configuration()
 
-        # config = self.controller.create_preview_configuration()
-        # self.controller.configure(config)
-        self.capture_config = self.controller.create_still_configuration()
+        self.controller.configure(self.low_res_config)
+        
 
-        print(self.controller.camera_controls)
-        print(self.controller.camera_properties)
-        print(self.controller.capture_metadata())
-        self.controller.start(show_preview=True)
-
-        # self.controller.resolution = (self.width, self.height)
-        # # self.camera.resolution = (1648, 928)
-        # self.controller.framerate = 32  # nombres d'images par secondes
-        #
-        # self.controller.rotation = 180
-        #
-        # self.camera.zoom = (0, 0, 1, 1)
-        #
-        # # Produit un tableau tridimensionnel RGB à partir d'une capture RGB
-        # # self.rawCapture = PiRGBArray(self.camera, size=(self.width, self.height))
-        # self.rawCapture = PiRGBArray(self.camera, size=(self.width, self.height))
+        logger.info(self.controller.camera_controls)
+        logger.info(self.controller.camera_properties)
+        #print(self.controller.capture_metadata())
+        self.controller.start()
 
         info = "Whatever info you want to log"
         initialized = True
@@ -104,7 +104,7 @@ class DAQ_2DViewer_PiCamera(DAQ_Viewer_base):
 
     def close(self):
         """Terminate the communication protocol"""
-        if self.controller is not None:
+        if self.controller is not None and self.is_master:
             self.controller.close()
 
     def grab_data(self, Naverage=1, **kwargs):
@@ -125,33 +125,34 @@ class DAQ_2DViewer_PiCamera(DAQ_Viewer_base):
             self.live = kwargs['live']
         else:
             self.live = False
+        logger.debug(f'live: {self.live}')
         if 'wait_time' in kwargs:
             self.wait_time = kwargs['wait_time']
-
-
+            logger.debug(self.wait_time)
+            
+        self.grab(Naverage)
+            
+    def grab(self, Naverage):
         for ind in range(Naverage):
-            if self.live:
-                array = self.controller.capture_array("main")
-            else:
-                array = self.controller.switch_mode_and_capture_array(self.capture_config, "main")
+            array = self.controller.capture_array("main")
+            logger.debug(f'array shape: {array.shape}')
             if len(array.shape) == 2:
                 arrays = [array]
             elif len(array.shape) == 3:
-                arrays = [array[..., ind] for ind in range(array.shape[2])]
+                arrays = [array[..., ind] for ind in range(3)] #alpha is with the last index equal to 4, we may skip it!
             else:
-                arrays = [array[..., ind, 0] for ind in range(array.shape[2])]  # TODO: check this with alpha
+                raise ValueError(f'The array shape is {array.shape} and is not handled')
             if ind == 0:
                 dwa_camera = DataFromPlugins('PiCamera', data=arrays)
             else:
                 dwa_camera = dwa_camera.average(DataFromPlugins('PiCamera', data=arrays),
                                                 weight= ind+1)
-        if self.live:
-            self.dte_signal_temp.emit(DataToExport('myplugin', data=[dwa_camera]))
-        else:
-            self.dte_signal.emit(DataToExport('myplugin', data=[dwa_camera]))
+        self.dte_signal.emit(DataToExport('myplugin', data=[dwa_camera]))
+        
 
     def stop(self):
         """Stop the current grab hardware wise if necessary"""
+        self.live = False
         return ''
 
 
