@@ -31,6 +31,8 @@ class DAQ_2DViewer_PiCamera(DAQ_Viewer_base):
 
     params = comon_parameters + [
         {'title': 'Resolution:', 'name': 'resolution', 'type': 'list', 'value': 'low', 'limits': ['low', 'high']},
+        {'title': 'Exposure Time:', 'name': 'exposure_time', 'type': 'int', 'value': 1000, 'suffix': 'µs'},
+        
         #{'title': 'Zoom:', 'name': 'zoom', 'type': 'slide', 'value': 1.0, 'min': 0., 'max': 1., 'subtype': 'linear'},
         #{'title': 'Brightness:', 'name': 'brightness', 'type': 'slide', 'value': 50, 'min': 0, 'max': 100,
         # 'subtype': 'linear', 'int': True},
@@ -66,6 +68,10 @@ class DAQ_2DViewer_PiCamera(DAQ_Viewer_base):
             else:
                 self.controller.switch_mode(self.high_res_config)
         #elif ...
+        
+        if param.name() == "exposure_time":
+            self.controller.set_controls({"ExposureTime": param.value()}) #We test with exposure time 5000
+        
 
     def ini_detector(self, controller=None):
         """Detector communication initialization
@@ -86,6 +92,11 @@ class DAQ_2DViewer_PiCamera(DAQ_Viewer_base):
             self.controller = Picamera2()
         else:
             self.controller = controller
+        
+        min_exp, max_exp, default_exp = self.controller.camera_controls["ExposureTime"]
+        logger.debug(f'Exposure times: {(min_exp, max_exp, default_exp)}')
+        self.settings.child('exposure_time').setLimits((min_exp, max_exp))
+        self.settings.child('exposure_time').setValue(default_exp)
         
         self.low_res_config = self.controller.create_preview_configuration()
         self.high_res_config = self.controller.create_still_configuration()
@@ -158,3 +169,4 @@ class DAQ_2DViewer_PiCamera(DAQ_Viewer_base):
 
 if __name__ == '__main__':
     main(__file__, init=False)
+
