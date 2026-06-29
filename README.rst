@@ -51,6 +51,12 @@ Viewer0D
 
 * **ViewRasp**: read the sensors of the device (e.g. I2C sensors) wired to the
   Raspberry
+  
+Viewer1D
+++++++++
+
+* **daqhats**: control of the MCC128 DAQ hat for analog input/output
+
 
 Viewer2D
 ++++++++
@@ -64,6 +70,24 @@ Viewer2D
 
 Adapting the plugin to your setup
 =================================
+
+Beware: some plugins are meant to be used with PyMoDAQ installed on the Raspberry directly:
+
+ * **daqhats**
+ * **picamera**
+ 
+Some other are using the raspberry and the components plugged on it as an external DAQ connected to a computer. 
+The computer and the Raspberry communicate over ZMQ:
+
+* **MoveRasp**
+* **ViewRasp**
+
+
+ZMQ plugins
+===========
+
+Communication
++++++++++++++
 
 The plugin is built to be adapted to a wide range of benches. Three things can be
 changed independently:
@@ -96,7 +120,7 @@ changed independently:
 
 
 Raspberry-side server
-=====================
++++++++++++++++++++++
 
 The code that must run on the Raspberry Pi lives in the ``src_raspberry/`` folder
 at the root of this repository. It is organised in independent layers — network
@@ -106,7 +130,7 @@ interface, which is what makes the points above easy to adapt. See
 
 
 Installation instructions
-=========================
++++++++++++++++++++++++++
 
 * PyMoDAQ’s version >= 5
 * On a Windows/macOS control machine the plugin installs as is; the ``picamera2``
@@ -114,3 +138,9 @@ Installation instructions
   unavailable there.
 * The Raspberry-side server requires the I2C bus and the ``pigpio`` daemon
   (see ``src_raspberry/README.md``).
+  
+  
+ OnRaspberry Plugins
+ ===================
+* PyMoDAQ’s version >= 5
+
