@@ -3,8 +3,8 @@ from pymodaq.control_modules.move_utility_classes import (DAQ_Move_base, comon_p
 
 from pymodaq_gui.parameter import Parameter
 
-from ..hardware.Link_PMQ import ZMQLink
-from ..hardware.Config_Components import get_actuators_hardware, get_access_variables
+from ..hardware.link_zmq import ZMQLink
+from ..hardware.config_components import get_actuators_hardware, get_access_variables
 
 from pymodaq_plugins_raspberry import config
 
@@ -39,10 +39,10 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
 
     # SETUP AXES VARIABLES
     ####################################################################################################################
-    is_multiaxes = False
+    is_multiaxes = True
     _axis_names = [actuator['title'] for actuator in actuators]
     _controller_units = [actuator['units'] for actuator in actuators]
-    _epsilon = 0.1
+    _epsilon = [0.1 for actuator in actuators]
     data_actuator_type = DataActuatorType.DataActuator
     current_component = None
     name_access_variables = get_access_variables(config)
@@ -57,12 +57,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
         self.controller: ZMQLink = None
 
         for elem in self.actuators:
-            if elem['title'] == self.settings['multiaxes', 'axis']:
-                self.current_component = elem
-                self.settings['bounds', 'max_bound'] = str(int(elem['max'])*100)
-                self.settings['bounds', 'min_bound'] = str(int(elem['min'])*100)
-                self.settings['units'] = elem['units']
-                break
+            self.update_move_settings(self.axis_name[0])
 
         self.settings['bounds', 'is_bounds'] = True
 
@@ -93,13 +88,23 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
             A given parameter (within detector_settings) whose value has been changed by the user
         """
         if param.name() == 'axis':
-            for elem in self.actuators:
-                if elem['name'] == param.value():
-                    self.current_component = elem
-                    self.settings['bounds', 'max_bound'] = elem['max']
-                    self.settings['bounds', 'min_bound'] = elem['min']
-                    self.settings['units'] = elem['units']
-                    break
+            self.update_move_settings(param.value())
+
+    def update_move_settings(self, param : str):
+        """Update the settings of the actuators
+
+        Parameters
+        ----------
+        param: str
+            the name of the parameter (within detector_settings) whose value has been changed by the user
+        """
+        for elem in self.actuators:
+            if elem['name'] == param:
+                self.current_component = elem
+                self.settings['bounds', 'max_bound'] = elem['max']
+                self.settings['bounds', 'min_bound'] = elem['min']
+                self.settings['units'] = elem['units']
+                break
 
     def ini_stage(self, controller=None):
         """Actuator communication initialization
@@ -129,7 +134,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
 
         Parameters
         ----------
-        value: (float) value of the absolute target positioning
+        value: (DataActuator) value of the absolute target positioning
         """
 
         value = self.check_bound(value)
@@ -143,7 +148,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
 
         Parameters
         ----------
-        value: (float) value of the relative target positioning
+        value: (DataActuator) value of the relative target positioning
         """
         value = self.check_bound(self.current_position + value) - self.current_position
         self.target_value = value + self.current_position
@@ -166,7 +171,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
         access_variables = None
 
         if isinstance(value, DataActuator):
-            value = value.value()
+            value = value.value(self.axis_unit)
 
         value /= 100
         if self.current_component is not None and (isinstance(value, float) or isinstance(value, int)):

@@ -6,8 +6,8 @@ from pymodaq_gui.parameter import Parameter
 
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
 
-from ...hardware.Link_PMQ import ZMQLink
-from ...hardware.Config_Components import get_actuators_hardware, get_detectors_hardware, get_access_variables
+from ...hardware.link_zmq import ZMQLink
+from ...hardware.config_components import get_actuators_hardware, get_detectors_hardware, get_access_variables
 
 from pymodaq_plugins_raspberry import config
 
@@ -73,7 +73,7 @@ class DAQ_0DViewer_ViewRasp(DAQ_Viewer_base):
         self.controller: ZMQLink = None
         self.selected_components = get_access_variables(config) # dict of all the selected components, sorted by address and pin
 
-        actuator_settings = self.settings.child('load_compo_group').child('load_actuator_group')
+        actuator_settings = self.settings.child('load_compo_group', 'load_actuator_group')
         for elem in actuator_settings:
             for type_access_variables in self.selected_components:
 
@@ -85,7 +85,7 @@ class DAQ_0DViewer_ViewRasp(DAQ_Viewer_base):
                 except Exception as e:
                     logger.info(f"ERROR - NO ELEMENTS WITH NAME : {str(e)}")
 
-        detectors_settings = self.settings.child('load_compo_group').child('load_detector_group')
+        detectors_settings = self.settings.child('load_compo_group', 'load_detector_group')
         for elem in detectors_settings:
             for type_access_variables in self.selected_components:
 
