@@ -121,7 +121,7 @@ class DAQ_0DViewer_ViewRasp(DAQ_Viewer_base):
             self.controller = controller
             initialized = True
 
-        return "Initialized ? : ", initialized
+        return "Initialized", initialized
 
     def close(self):
         """Terminate the communication protocol"""

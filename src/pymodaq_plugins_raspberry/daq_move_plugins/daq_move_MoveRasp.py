@@ -1,3 +1,4 @@
+from pint.facets.numpy import quantity
 from pymodaq.control_modules.move_utility_classes import (DAQ_Move_base, comon_parameters_fun, main,
                                                           DataActuator, DataActuatorType)
 
@@ -127,7 +128,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
             self.controller = controller
             initialized = True
 
-        return "Initialized ? : ", initialized
+        return "Initialized", initialized
 
     def move_abs(self, value: DataActuator):
         """ Move the actuator to the absolute target defined by value
@@ -158,7 +159,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
 
     def move_home(self):
         """Call the reference method of the controller"""
-        self.move_value(0)
+        self.move_value(DataActuator(name='set_value_home', data=0, units=self.axis_unit))
 
     def move_value(self, value):
         """ Move the actuator to the target actuator value defined by value
