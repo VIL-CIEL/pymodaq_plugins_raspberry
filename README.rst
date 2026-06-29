@@ -32,6 +32,11 @@ Instruments
 
 Below is the list of instruments included in this plugin
 
+Viewer1D
+++++++++
+
+* **daqhats**: control of the MCC128 DAQ hat for analog input/output
+
 
 Viewer2D
 ++++++++
@@ -51,6 +56,6 @@ Viewer2D
 Installation instructions
 =========================
 
-* PyMoDAQ’s version >= 4
+* PyMoDAQ’s version >= 5
 * Tested on/with a raspberry pi 4
 
