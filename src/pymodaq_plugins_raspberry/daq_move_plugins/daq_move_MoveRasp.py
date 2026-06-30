@@ -58,7 +58,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
         self.controller: ZMQLink = None
 
         for elem in self.actuators:
-            self.update_move_settings(self.axis_name[0])
+            self.update_move_settings(self.axis_name)
 
         self.settings['bounds', 'is_bounds'] = True
 
@@ -100,7 +100,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
             the name of the parameter (within detector_settings) whose value has been changed by the user
         """
         for elem in self.actuators:
-            if elem['name'] == param:
+            if elem['title'] == param:
                 self.current_component = elem
                 self.settings['bounds', 'max_bound'] = elem['max']
                 self.settings['bounds', 'min_bound'] = elem['min']
