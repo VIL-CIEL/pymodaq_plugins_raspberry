@@ -9,7 +9,7 @@ port = '5555'
 # Basic variables, you need them for the plugin to work correctly !
 title = "MyActuator" # IT HAVE TO BE UNIQUE AMONG THE OTHER COMPONENT'S NAME
 name = "nameActuator" # IT HAVE TO BE UNIQUE AMONG THE OTHER COMPONENT'S NAME
-units = "%"
+units = ""
 min = "0"
 max = "100"
 #
@@ -30,7 +30,7 @@ pin = "00"
 # Basic variables, you need them for the plugin to work correctly !
 title = "MyDetector" # IT HAVE TO BE UNIQUE AMONG THE OTHER COMPONENT'S NAME
 name = "nameDetector" # IT HAVE TO BE UNIQUE AMONG THE OTHER COMPONENT'S NAME
-units = "%"
+units = "V"
 #
 # Extra variables, they are used to identify the component
 # Here, for a I2C network, we use an address and a pin variable to identify and use the component "MyActuator"

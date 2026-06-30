@@ -128,6 +128,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
             self.controller = controller
             initialized = True
 
+        self.settings.child('scaling').setOpts(visible=False)
         return "Initialized", initialized
 
     def move_abs(self, value: DataActuator):
@@ -140,7 +141,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
 
         value = self.check_bound(value)
         self.target_value = value
-        #value = self.set_position_with_scaling(value)
+        value = self.set_position_with_scaling(value)
 
         self.move_value(value)
 
@@ -153,7 +154,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
         """
         value = self.check_bound(self.current_position + value) - self.current_position
         self.target_value = value + self.current_position
-        #value = self.set_position_relative_with_scaling(value)
+        value = self.set_position_relative_with_scaling(value)
 
         self.move_value(value)
 
@@ -174,7 +175,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
         if isinstance(value, DataActuator):
             value = value.value(self.axis_unit)
 
-        value /= 100
+        # value = (value * 255) / 10000 # Formula for converting the PWM duty cycle percentage to a raw value in PigPio
         if self.current_component is not None and (isinstance(value, float) or isinstance(value, int)):
 
             for elem in self.name_access_variables:
@@ -208,7 +209,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
         -------
         float: The position obtained after scaling conversion.
         """
-        return DataActuator(data=self.output_value)
+        return DataActuator(data=self.output_value, units=self.axis_unit)
 
 if __name__ == '__main__':
     main(__file__)
